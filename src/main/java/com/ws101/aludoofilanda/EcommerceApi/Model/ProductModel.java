@@ -11,7 +11,6 @@ import lombok.EqualsAndHashCode;
 @Setter
 @ToString
 @EqualsAndHashCode
-@AllArgsConstructor
 @NoArgsConstructor
 public class ProductModel {
 
@@ -22,7 +21,5 @@ public class ProductModel {
     private String category;
     private int stockQuantity;
     private String imageUrl;
-    public ProductModel() {
 
-    }
 }
