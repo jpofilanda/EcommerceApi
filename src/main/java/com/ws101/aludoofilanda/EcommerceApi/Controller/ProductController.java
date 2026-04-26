@@ -2,6 +2,7 @@ package com.ws101.aludoofilanda.EcommerceApi.Controller;
 
 import com.ws101.aludoofilanda.EcommerceApi.Model.ProductModel;
 import com.ws101.aludoofilanda.EcommerceApi.Service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,8 +57,8 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductModel> createProduct(@RequestBody ProductModel product) {
-        return ResponseEntity.ok(productService.createProduct(product));
+    public ResponseEntity<ProductModel> createProduct(@Valid @RequestBody ProductModel product) {
+        return ResponseEntity.status(201).body(productService.createProduct(product));
     }
 
     @PutMapping("/{id}")
