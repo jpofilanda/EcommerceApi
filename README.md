@@ -61,3 +61,19 @@ PATCH /products/2 → 200 OK → Price updated successfully
 DELETE /products/3 → 204 No Content → Product deleted  
 GET /products/999 → 404 Not Found → Correct error handling
 
+- Francis anthony aludo
+
+
+### API TESTING PROOF
+
+### POST
+![POST](images/screenshot%20(49).png)
+
+### GET ALL
+![GET ALL](images/screenshot%20(50).png)
+
+### PATCH
+![PATCH](images/screenshot%20(51).png)
+
+### DELETE
+![DELETE](images/screenshot%20(52).png)
