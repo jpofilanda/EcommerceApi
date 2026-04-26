@@ -50,4 +50,19 @@ The data will reset when the application is restarted because it does not use a 
 ## Authors
 
 - John patrick ofilanda
-- Francis anthony aludo 
+- Francis anthony aludo
+
+
+### API TESTING PROOF
+
+### POST
+![POST](images/screenshot%20(49).png)
+
+### GET ALL
+![GET ALL](images/screenshot%20(50).png)
+
+### PATCH
+![PATCH](images/screenshot%20(51).png)
+
+### DELETE
+![DELETE](images/screenshot%20(52).png)
