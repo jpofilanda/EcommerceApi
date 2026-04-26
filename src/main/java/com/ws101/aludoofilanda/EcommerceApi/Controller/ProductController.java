@@ -78,8 +78,10 @@ public class ProductController {
         if (product.getDescription() != null) existing.setDescription(product.getDescription());
         if (product.getCategory() != null) existing.setCategory(product.getCategory());
         if (product.getImageUrl() != null) existing.setImageUrl(product.getImageUrl());
-        if (product.getPrice() != 0) existing.setPrice(product.getPrice());
-        if (product.getStockQuantity() != 0) existing.setStockQuantity(product.getStockQuantity());
+        if (product.getPrice() != null && product.getPrice() > 0)
+            existing.setPrice(product.getPrice());
+        if (product.getStockQuantity() != null && product.getStockQuantity() >= 0)
+            existing.setStockQuantity(product.getStockQuantity());
 
         return ResponseEntity.ok(existing);
     }
