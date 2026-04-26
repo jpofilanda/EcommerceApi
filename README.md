@@ -51,3 +51,13 @@ The data will reset when the application is restarted because it does not use a 
 
 - John patrick ofilanda
 - Francis anthony aludo 
+
+
+## TASK 6 
+
+POST /products → 201 Created → Product successfully created  
+GET /products → 200 OK → All products retrieved  
+PATCH /products/2 → 200 OK → Price updated successfully  
+DELETE /products/3 → 204 No Content → Product deleted  
+GET /products/999 → 404 Not Found → Correct error handling
+

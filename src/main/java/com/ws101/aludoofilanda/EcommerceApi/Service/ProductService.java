@@ -16,20 +16,20 @@ public class ProductService {
     // ID is manually generated using incrementing counter (nextId)
 
     public ProductService() {
-        addSample("Laptop", "Gaming laptop", 50000, "Electronics", 10);
-        addSample("Phone", "Android phone", 15000, "Electronics", 20);
-        addSample("Headphones", "Noise cancelling", 3000, "Electronics", 15);
-        addSample("Shoes", "Running shoes", 2500, "Fashion", 30);
-        addSample("Shirt", "Cotton shirt", 800, "Fashion", 50);
-        addSample("Watch", "Smart watch", 7000, "Accessories", 12);
-        addSample("Bag", "Backpack", 1200, "Accessories", 18);
-        addSample("Keyboard", "Mechanical keyboard", 3500, "Electronics", 10);
-        addSample("Mouse", "Wireless mouse", 1200, "Electronics", 25);
-        addSample("Chair", "Office chair", 4500, "Furniture", 8);
+        addSample("Laptop", "Gaming laptop", 50000.0, "Electronics", 10);
+        addSample("Phone", "Android phone", 15000.0, "Electronics", 20);
+        addSample("Headphones", "Noise cancelling", 3000.0, "Electronics", 15);
+        addSample("Shoes", "Running shoes", 2500.0, "Fashion", 30);
+        addSample("Shirt", "Cotton shirt", 800.0, "Fashion", 50);
+        addSample("Watch", "Smart watch", 7000.0, "Accessories", 12);
+        addSample("Bag", "Backpack", 1200.0, "Accessories", 18);
+        addSample("Keyboard", "Mechanical keyboard", 3500.0, "Electronics", 10);
+        addSample("Mouse", "Wireless mouse", 1200.0, "Electronics", 25);
+        addSample("Chair", "Office chair", 4500.0, "Furniture", 8);
     }
 
-    private void addSample(String name, String desc, double price,
-                           String category, int stock) {
+    private void addSample(String name, String desc, Double price,
+                           String category, Integer stock) {
 
         ProductModel product = new ProductModel();
         product.setId(nextId++);
@@ -55,6 +55,8 @@ public class ProductService {
     }
 
     public ProductModel createProduct(ProductModel product) {
+        if (product.getStockQuantity() == null) product.setStockQuantity(0);
+        if (product.getPrice() == null) product.setPrice(0.0);
         product.setId(nextId++);
         products.add(product);
         return product;
