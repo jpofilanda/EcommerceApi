@@ -1,10 +1,3 @@
-
-@RestController
-@RequestMapping("/api/v1/products")
-
-public class ProductController {
-
-
 package com.ws101.aludoofilanda.EcommerceApi.Controller;
 
 import com.ws101.aludoofilanda.EcommerceApi.Model.ProductModel;
