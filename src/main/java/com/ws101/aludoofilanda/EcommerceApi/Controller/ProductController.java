@@ -1,5 +1,7 @@
 package com.ws101.aludoofilanda.EcommerceApi.Controller;
 
+import com.ws101.aludoofilanda.EcommerceApi.DTO.CreateProductDto;
+import com.ws101.aludoofilanda.EcommerceApi.DTO.ProductListingDto;
 import com.ws101.aludoofilanda.EcommerceApi.Model.ProductModel;
 import com.ws101.aludoofilanda.EcommerceApi.Service.ProductService;
 import jakarta.validation.Valid;
@@ -19,19 +21,25 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // Public - anyone can view products
+    // Public - returns concise ProductListingDto
     @GetMapping
-    public ResponseEntity<List<ProductModel>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<List<ProductListingDto>> getAllProducts() {
+        List<ProductListingDto> products = productService.getAllProducts()
+                .stream()
+                .map(p -> new ProductListingDto(
+                        p.getId(), p.getName(), p.getPrice(),
+                        p.getDescription(), p.getStockQuantity(), p.getImageUrl()))
+                .toList();
+        return ResponseEntity.ok(products);
     }
 
-    // Public - anyone can view a single product
+    // Public
     @GetMapping("/{id}")
     public ResponseEntity<ProductModel> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    // Public - anyone can filter products
+    // Public
     @GetMapping("/filter")
     public ResponseEntity<List<ProductModel>> filterProducts(
             @RequestParam String filterType,
@@ -59,14 +67,21 @@ public class ProductController {
         return ResponseEntity.ok(result);
     }
 
-    // Admin only - only ADMIN role can create products
+    // Admin only - uses CreateProductDto for validated input
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<ProductModel> createProduct(@Valid @RequestBody ProductModel product) {
+    public ResponseEntity<ProductModel> createProduct(
+            @Valid @RequestBody CreateProductDto dto) {
+        ProductModel product = new ProductModel();
+        product.setName(dto.getName());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setStockQuantity(dto.getStockQuantity());
+        product.setImageUrl(dto.getImageUrl());
         return ResponseEntity.status(201).body(productService.createProduct(product));
     }
 
-    // Admin only - only ADMIN role can update products
+    // Admin only
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductModel> updateProduct(@PathVariable Long id,
@@ -74,7 +89,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(id, product));
     }
 
-    // Admin only - only ADMIN role can patch products
+    // Admin only
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<ProductModel> patchProduct(@PathVariable Long id,
@@ -92,7 +107,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.createProduct(existing));
     }
 
-    // Admin only - only ADMIN role can delete products
+    // Admin only
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
