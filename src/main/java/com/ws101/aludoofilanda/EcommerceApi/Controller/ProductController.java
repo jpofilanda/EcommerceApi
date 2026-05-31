@@ -25,8 +25,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductModel> getProductById(@PathVariable Long id) {
-        ProductModel product = productService.getProductById(id);
-        return product != null ? ResponseEntity.ok(product) : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(productService.getProductById(id));
     }
 
     @GetMapping("/filter")
@@ -50,7 +49,7 @@ public class ProductController {
                 result = productService.filterByPrice(min, max);
                 break;
             default:
-                return ResponseEntity.badRequest().build();
+                throw new IllegalArgumentException("Invalid filter type: " + filterType);
         }
 
         return ResponseEntity.ok(result);
@@ -63,32 +62,29 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductModel> updateProduct(@PathVariable Long id,
-                                                      @RequestBody ProductModel product) {
-        ProductModel updated = productService.updateProduct(id, product);
-        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+                                                      @Valid @RequestBody ProductModel product) {
+        return ResponseEntity.ok(productService.updateProduct(id, product));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ProductModel> patchProduct(@PathVariable Long id,
                                                      @RequestBody ProductModel product) {
         ProductModel existing = productService.getProductById(id);
-        if (existing == null) return ResponseEntity.notFound().build();
 
         if (product.getName() != null) existing.setName(product.getName());
         if (product.getDescription() != null) existing.setDescription(product.getDescription());
-        if (product.getCategory() != null) existing.setCategory(product.getCategory());
         if (product.getImageUrl() != null) existing.setImageUrl(product.getImageUrl());
         if (product.getPrice() != null && product.getPrice() > 0)
             existing.setPrice(product.getPrice());
         if (product.getStockQuantity() != null && product.getStockQuantity() >= 0)
             existing.setStockQuantity(product.getStockQuantity());
 
-        return ResponseEntity.ok(existing);
+        return ResponseEntity.ok(productService.createProduct(existing));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        boolean deleted = productService.deleteProduct(id);
-        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 }

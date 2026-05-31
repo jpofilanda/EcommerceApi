@@ -1,7 +1,10 @@
 package com.ws101.aludoofilanda.EcommerceApi.Service;
 
+import com.ws101.aludoofilanda.EcommerceApi.Model.CategoryModel;
 import com.ws101.aludoofilanda.EcommerceApi.Model.ProductModel;
+import com.ws101.aludoofilanda.EcommerceApi.Repository.CategoryRepository;
 import com.ws101.aludoofilanda.EcommerceApi.Repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,9 +13,12 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository,
+                          CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public List<ProductModel> getAllProducts() {
@@ -20,7 +26,8 @@ public class ProductService {
     }
 
     public ProductModel getProductById(Long id) {
-        return productRepository.findById(id).orElse(null);
+        return productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product with ID " + id + " not found"));
     }
 
     public ProductModel createProduct(ProductModel product) {
@@ -28,15 +35,13 @@ public class ProductService {
     }
 
     public ProductModel updateProduct(Long id, ProductModel updated) {
-        return productRepository.findById(id).map(p -> {
-            p.setName(updated.getName());
-            p.setDescription(updated.getDescription());
-            p.setPrice(updated.getPrice());
-            p.setCategory(updated.getCategory());
-            p.setStockQuantity(updated.getStockQuantity());
-            p.setImageUrl(updated.getImageUrl());
-            return productRepository.save(p);
-        }).orElse(null);
+        ProductModel existing = getProductById(id);
+        existing.setName(updated.getName());
+        existing.setDescription(updated.getDescription());
+        existing.setPrice(updated.getPrice());
+        existing.setStockQuantity(updated.getStockQuantity());
+        existing.setImageUrl(updated.getImageUrl());
+        return productRepository.save(existing);
     }
 
     public boolean deleteProduct(Long id) {
@@ -44,11 +49,11 @@ public class ProductService {
             productRepository.deleteById(id);
             return true;
         }
-        return false;
+        throw new EntityNotFoundException("Product with ID " + id + " not found");
     }
 
-    public List<ProductModel> filterByCategory(String category) {
-        return productRepository.findByCategoryIgnoreCase(category);
+    public List<ProductModel> filterByCategory(String categoryName) {
+        return productRepository.findByCategoryNameIgnoreCase(categoryName);
     }
 
     public List<ProductModel> searchByName(String name) {
