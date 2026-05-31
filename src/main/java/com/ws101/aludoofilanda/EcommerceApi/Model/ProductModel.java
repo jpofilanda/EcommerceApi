@@ -1,26 +1,21 @@
 package com.ws101.aludoofilanda.EcommerceApi.Model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
 
-
+@Entity
+@Table(name = "products")
 @Getter
 @Setter
-@ToString
-@EqualsAndHashCode
+@ToString(exclude = "category")
+@EqualsAndHashCode(exclude = "category")
 @NoArgsConstructor
 public class ProductModel {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Name is required")
@@ -29,9 +24,6 @@ public class ProductModel {
 
     @NotBlank(message = "Description is required")
     private String description;
-
-    @NotBlank(message = "Category is required")
-    private String category;
 
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be greater than 0")
@@ -44,4 +36,7 @@ public class ProductModel {
     private String imageUrl;
 
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private CategoryModel category;
 }
