@@ -170,3 +170,23 @@ $env:JAVA_HOME = "C:\Users\Administrator\.jdks\corretto-21.0.11"
 - Bean Validation
 - MySQL 8.0
 - Lombok
+
+
+---
+
+## Image Demo
+
+### 1. User Registration
+![Register Success](images/register-success.png)
+
+### 2. User Login (JSESSIONID cookie set)
+![Login Success](images/login-success.png)
+
+### 3. Protected Action FAILING without session (401)
+![Protected Fail](images/protected-fail.png)
+
+### 4. Protected Action SUCCEEDING with session
+![Protected Success](images/protected-success.png)
+
+### 5. Validation Error (negative price)
+![Validation Error](images/validation-error.png)

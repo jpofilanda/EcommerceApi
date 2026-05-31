@@ -4,6 +4,7 @@ import com.ws101.aludoofilanda.EcommerceApi.Service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -12,13 +13,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 /**
  * Spring Security configuration.
- * Configures session-based authentication with form login.
- * Defines public and protected endpoints.
- * EnableMethodSecurity allows @PreAuthorize on controller methods.
- * CSRF disabled for API endpoints only to allow fetch requests.
+ * Supports both session-based and HTTP Basic authentication.
+ * Returns 401 for unauthenticated API requests.
  */
 @Configuration
 @EnableMethodSecurity
@@ -63,22 +63,24 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/orders/**").authenticated()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                )
                 .formLogin(form -> form
                         .defaultSuccessUrl("/api/v1/products", true)
                         .permitAll()
                 )
+                .httpBasic(basic -> {})
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
-                        .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
                 .sessionManagement(session -> session
                         .maximumSessions(1)
                 )
-                // Disable CSRF for API endpoints only
-                // This allows fetch requests from the frontend to work
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/v1/**")
                 )
