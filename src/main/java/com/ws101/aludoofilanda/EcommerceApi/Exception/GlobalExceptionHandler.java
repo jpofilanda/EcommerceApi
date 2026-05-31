@@ -7,54 +7,109 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+/**
+ * Global exception handler for the entire application.
+ * Uses @ControllerAdvice to intercept exceptions from all controllers.
+ * Returns structured JSON error responses with timestamp and error details.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Handles 404 - Entity not found in the database
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleEntityNotFound(EntityNotFoundException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Not Found");
-        error.put("message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-    }
-
-    // Handles 400 - Database constraint violations (e.g. duplicate unique fields)
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, String>> handleDataIntegrity(DataIntegrityViolationException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Bad Request");
-        error.put("message", "Data integrity violation: " + ex.getMostSpecificCause().getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
-    // Handles 400 - Validation errors from @Valid
+    /**
+     * Handles validation errors thrown when @Valid fails.
+     * Collects all field errors and returns them as a list.
+     * Returns 400 Bad Request with structured JSON.
+     * Example response:
+     * {
+     *   "timestamp": "2026-05-31T10:00:00",
+     *   "status": 400,
+     *   "errors": ["Field 'price' must be positive", "Name is required"]
+     * }
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    public ResponseEntity<Map<String, Object>> handleValidationException(
+            MethodArgumentNotValidException ex) {
+
+        List<String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> "Field '" + error.getField() + "' " + error.getDefaultMessage())
+                .toList();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("status", 400);
+        response.put("errors", errors);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Handles 400 - Illegal argument errors
+    /**
+     * Handles 404 - Entity not found in the database.
+     * Returns structured JSON with timestamp and message.
+     */
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleEntityNotFound(
+            EntityNotFoundException ex) {
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("status", 404);
+        response.put("errors", List.of(ex.getMessage()));
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    /**
+     * Handles 400 - Database constraint violations.
+     * Example: duplicate unique fields.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleDataIntegrity(
+            DataIntegrityViolationException ex) {
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("status", 400);
+        response.put("errors", List.of("Data integrity violation: "
+                + ex.getMostSpecificCause().getMessage()));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * Handles 400 - Illegal argument errors.
+     * Example: invalid filter type in product filtering.
+     */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleBadRequest(IllegalArgumentException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Bad Request");
-        error.put("message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    public ResponseEntity<Map<String, Object>> handleBadRequest(
+            IllegalArgumentException ex) {
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("status", 400);
+        response.put("errors", List.of(ex.getMessage()));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Handles 500 - Any other unexpected errors
+    /**
+     * Handles 500 - Any other unexpected errors.
+     * Catches all unhandled exceptions as a fallback.
+     */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGeneralException(Exception ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Internal Server Error");
-        error.put("message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("status", 500);
+        response.put("errors", List.of("Internal Server Error: " + ex.getMessage()));
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }
