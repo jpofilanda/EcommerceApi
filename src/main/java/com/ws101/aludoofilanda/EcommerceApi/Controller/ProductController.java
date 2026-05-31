@@ -4,6 +4,7 @@ import com.ws101.aludoofilanda.EcommerceApi.Model.ProductModel;
 import com.ws101.aludoofilanda.EcommerceApi.Service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,16 +19,19 @@ public class ProductController {
         this.productService = productService;
     }
 
+    // Public - anyone can view products
     @GetMapping
     public ResponseEntity<List<ProductModel>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
+    // Public - anyone can view a single product
     @GetMapping("/{id}")
     public ResponseEntity<ProductModel> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
+    // Public - anyone can filter products
     @GetMapping("/filter")
     public ResponseEntity<List<ProductModel>> filterProducts(
             @RequestParam String filterType,
@@ -55,17 +59,23 @@ public class ProductController {
         return ResponseEntity.ok(result);
     }
 
+    // Admin only - only ADMIN role can create products
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductModel> createProduct(@Valid @RequestBody ProductModel product) {
         return ResponseEntity.status(201).body(productService.createProduct(product));
     }
 
+    // Admin only - only ADMIN role can update products
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductModel> updateProduct(@PathVariable Long id,
                                                       @Valid @RequestBody ProductModel product) {
         return ResponseEntity.ok(productService.updateProduct(id, product));
     }
 
+    // Admin only - only ADMIN role can patch products
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<ProductModel> patchProduct(@PathVariable Long id,
                                                      @RequestBody ProductModel product) {
@@ -82,6 +92,8 @@ public class ProductController {
         return ResponseEntity.ok(productService.createProduct(existing));
     }
 
+    // Admin only - only ADMIN role can delete products
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
