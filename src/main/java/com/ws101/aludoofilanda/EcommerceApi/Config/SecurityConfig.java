@@ -29,7 +29,6 @@ public class SecurityConfig {
 
     /**
      * BCrypt password encoder bean.
-     * Used to hash passwords before saving to the database.
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -58,18 +57,13 @@ public class SecurityConfig {
 
     /**
      * Security filter chain configuration.
-     * Public endpoints: GET products, POST register.
-     * Protected endpoints: POST/DELETE/PUT products, orders.
-     * Enables form login and session management.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers("/api/v1/auth/register").permitAll()
-                        // Protected endpoints
                         .requestMatchers(HttpMethod.POST, "/api/v1/products/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").authenticated()
@@ -78,6 +72,13 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .defaultSuccessUrl("/api/v1/products", true)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
                 .sessionManagement(session -> session
