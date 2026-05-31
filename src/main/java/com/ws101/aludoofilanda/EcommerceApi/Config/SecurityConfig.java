@@ -18,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * Configures session-based authentication with form login.
  * Defines public and protected endpoints.
  * EnableMethodSecurity allows @PreAuthorize on controller methods.
+ * CSRF disabled for API endpoints only to allow fetch requests.
  */
 @Configuration
 @EnableMethodSecurity
@@ -48,25 +49,17 @@ public class SecurityConfig {
         return provider;
     }
 
-    /**
-     * Security filter chain.
-     * Public: GET products, register endpoint.
-     * Protected: POST/PUT/DELETE products, orders.
-     * requestMatchers defines role-based access per HTTP method and path.
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers("/api/v1/auth/register").permitAll()
-                        // Admin only endpoints
+                        .requestMatchers("/api/v1/auth/me").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**").hasRole("ADMIN")
-                        // Authenticated user endpoints
                         .requestMatchers("/api/v1/orders/**").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -83,6 +76,11 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session
                         .maximumSessions(1)
+                )
+                // Disable CSRF for API endpoints only
+                // This allows fetch requests from the frontend to work
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/v1/**")
                 )
                 .authenticationProvider(authenticationProvider());
 
